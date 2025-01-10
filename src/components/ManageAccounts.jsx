@@ -1,76 +1,98 @@
 import React, { useState } from 'react';
+import { Container, Table, Button, Modal, Form } from 'react-bootstrap';
 
-const ManageAccounts = ({ accounts, onDeleteAccount, onUpdatePassword }) => {
-  // State to manage which account's password is being updated
-  const [passwordUpdateIndex, setPasswordUpdateIndex] = useState(null);
+const ManageAccounts = ({ accounts, setAccounts }) => {
+  const [show, setShow] = useState(false);
+  const [accountToUpdate, setAccountToUpdate] = useState(null);
   const [newPassword, setNewPassword] = useState('');
 
-  const handleDelete = (email) => {
-    if (window.confirm('Are you sure you want to delete this account?')) {
-      onDeleteAccount(email);
+  const handleDelete = (account) => {
+    if (window.confirm(`Are you sure you want to delete ${account.email}?`)) {
+      const updatedAccounts = accounts.filter((acc) => acc.email !== account.email);
+      setAccounts(updatedAccounts);
+      localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
     }
   };
 
-  const handleUpdatePassword = (email) => {
-    if (newPassword) {
-      onUpdatePassword(email, newPassword);
-      setNewPassword('');
-      setPasswordUpdateIndex(null); // Hide the password input field after update
-    } else {
-      alert('Please enter a new password!');
+  const handleUpdatePassword = (account) => {
+    setAccountToUpdate(account);
+    setShow(true);
+  };
+
+  const handleSavePassword = () => {
+    if (!newPassword) {
+      alert('Password cannot be empty!');
+      return;
     }
+    const updatedAccounts = accounts.map((acc) =>
+      acc.email === accountToUpdate.email
+        ? { ...acc, password: newPassword }
+        : acc
+    );
+    setAccounts(updatedAccounts);
+    localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
+    setShow(false);
+    setNewPassword('');
   };
 
   return (
-    <div className="container">
-      <h2 className="text-center my-4">Manage Accounts</h2>
-      <div className="list-group">
-        {accounts.map((account, index) => (
-          <div key={account.email} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <p>Email: {account.email}</p>
-
-              {/* Show password update input field only for the selected account */}
-              {passwordUpdateIndex === index && (
-                <>
-                  <input
-                    type="password"
-                    className="form-control mb-2"
-                    placeholder="New Password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                  />
-                  <button
-                    className="btn btn-success mb-2"
-                    onClick={() => handleUpdatePassword(account.email)}
-                  >
-                    Save Password
-                  </button>
-                </>
-              )}
-            </div>
-            <div>
-              {/* Show "Update" button only if password update is not in progress */}
-              {passwordUpdateIndex !== index ? (
-                <button
-                  className="btn btn-primary"
-                  onClick={() => setPasswordUpdateIndex(index)} // Show input field when Update is clicked
+    <Container>
+      <h2 className="text-center mb-4">Manage Accounts</h2>
+      <Table striped bordered hover>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {accounts.map((account) => (
+            <tr key={account.email}>
+              <td>{account.email}</td>
+              <td>
+                <Button
+                  variant="warning"
+                  className="me-2"
+                  onClick={() => handleUpdatePassword(account)}
                 >
-                  Update
-                </button>
-              ) : null}
+                  Update Password
+                </Button>
+                <Button variant="danger" onClick={() => handleDelete(account)}>
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
-              <button
-                className="btn btn-danger ms-2"
-                onClick={() => handleDelete(account.email)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+      {/* Update Password Modal */}
+      <Modal show={show} onHide={() => setShow(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Password</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>New Password</Form.Label>
+              <Form.Control
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShow(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleSavePassword}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </Container>
   );
 };
 

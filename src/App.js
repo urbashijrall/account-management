@@ -1,43 +1,39 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css'; // Importing the CSS
+import './App.css';
 import Header from './components/Header';
 import Registration from './components/RegistrationPage';
 import Login from './components/LoginPage';
 import ManageAccounts from './components/ManageAccounts';
 
 const App = () => {
-  // Load accounts from localStorage or initialize an empty array
   const [accounts, setAccounts] = useState(() => {
     const savedAccounts = JSON.parse(localStorage.getItem('accounts'));
     return savedAccounts || [];
   });
 
-  const [loggedInUser, setLoggedInUser] = useState(null); // Manage logged-in user state
+  const [loggedInUser, setLoggedInUser] = useState(null);
 
-  // Function to handle registering a new account
+  // Handle registering a new account
   const handleRegister = (newAccount) => {
     const updatedAccounts = [...accounts, newAccount];
     setAccounts(updatedAccounts);
-    // Save to localStorage
     localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
   };
 
-  // Function to delete an account
+  // Handle deleting an account
   const handleDeleteAccount = (email) => {
     const updatedAccounts = accounts.filter(account => account.email !== email);
     setAccounts(updatedAccounts);
-    // Save to localStorage
     localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
   };
 
-  // Function to update an account's password
+  // Handle updating an account's password
   const handleUpdatePassword = (email, newPassword) => {
     const updatedAccounts = accounts.map(account => 
       account.email === email ? { ...account, password: newPassword } : account
     );
     setAccounts(updatedAccounts);
-    // Save to localStorage
     localStorage.setItem('accounts', JSON.stringify(updatedAccounts));
   };
 
@@ -64,6 +60,7 @@ const App = () => {
           element={
             <ManageAccounts
               accounts={accounts}
+              setAccounts={setAccounts}
               onDeleteAccount={handleDeleteAccount}
               onUpdatePassword={handleUpdatePassword}
             />

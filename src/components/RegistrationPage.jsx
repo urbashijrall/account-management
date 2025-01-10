@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Container, Form, Button, Card } from 'react-bootstrap';
 
 const RegistrationPage = ({ onRegister }) => {
   const [email, setEmail] = useState('');
@@ -7,70 +8,57 @@ const RegistrationPage = ({ onRegister }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
+    if (password === confirmPassword) {
+      onRegister({ email, password });
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+    } else {
       alert('Passwords do not match!');
-      return;
     }
-
-    // Create the new account
-    const newAccount = { email, password };
-
-    // Call the onRegister function passed from the parent (App.js)
-    onRegister(newAccount);
-
-    // Reset the form
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-
-    alert('Account registered successfully!');
   };
 
   return (
-    <div className="container d-flex justify-content-center align-items-center min-vh-100">
-      <div className="card p-4" style={{ width: '400px' }}>
-        <h1 className="text-center mb-4">Registration Page</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-3">
-            <label htmlFor="email" className="form-label">Email</label>
-            <input
+    <Container className="d-flex justify-content-center align-items-center mt-5">
+      <Card className="p-4" style={{ width: '100%', maxWidth: '500px' }}>
+        <h2 className="text-center mb-4">Register</h2>
+        <Form onSubmit={handleSubmit}>
+          <Form.Group className="mb-3">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
               type="email"
-              className="form-control"
-              id="email"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="password" className="form-label">Password</label>
-            <input
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Password</Form.Label>
+            <Form.Control
               type="password"
-              className="form-control"
-              id="password"
+              placeholder="Enter password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
-          <div className="mb-3">
-            <label htmlFor="confirmPassword" className="form-label">Confirm Password</label>
-            <input
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Confirm Password</Form.Label>
+            <Form.Control
               type="password"
-              className="form-control"
-              id="confirmPassword"
+              placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
-          </div>
-          <button type="submit" className="btn btn-primary w-100">
+          </Form.Group>
+          <Button variant="primary" type="submit" className="w-100">
             Register
-          </button>
-        </form>
-      </div>
-    </div>
+          </Button>
+        </Form>
+      </Card>
+    </Container>
   );
 };
 
